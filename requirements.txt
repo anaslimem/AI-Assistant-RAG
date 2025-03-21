@@ -6,3 +6,4 @@ llama-index
 duckduckgo-search
 altair
 langchain-ollama
+hashlib
