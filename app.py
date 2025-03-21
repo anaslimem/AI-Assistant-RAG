@@ -4,9 +4,13 @@ from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_community.llms import Ollama
 from langchain_ollama import OllamaEmbeddings
 from langchain.tools import Tool
-import os
-import ast
+import os,ast,redis,json,hashlib
+from hashlib import md5 as hashlibmd5
 
+
+# Redis connection setup with error handling
+REDIS = redis.Redis(host='localhost', port=6379, db=0)
+REDIS.ping()  # Test connection
 
 # Initialize Ollama model
 llm = Ollama(model="llama3.1")
@@ -55,6 +59,20 @@ else:
         embedding_function=embeddings
     )
 
+def cache_query(query: str, response: str):
+    """Store the result of the query in Redis."""
+    query_hash = hashlibmd5(query.encode('utf-8')).hexdigest() # Unique hash for the query
+    REDIS.setex(query_hash, 3600, json.dumps(response)) # Cache with 1 hour expiration
+
+def get_cached_result(query):
+    """Retrieve the cached result of the query from Redis."""
+    query_hash = hashlib.md5(query.encode('utf-8')).hexdigest() 
+    cached_result = REDIS.get(query_hash)
+    if cached_result:
+        return json.loads(cached_result)
+    else:
+        return None
+
 def retrieve_context(query: str) -> str:
     """Retrieve the most similar context from the vectorstore."""
     docs = vectorstore.similarity_search(query, k=3)
@@ -62,13 +80,23 @@ def retrieve_context(query: str) -> str:
 
 def ask_rag(query: str) -> str:
     """Ask the Retrieval Augmented Generation model a question."""
+    # Check if we already have a cached result for the query
+    cached_result = get_cached_result(query)
+    if cached_result:
+        return cached_result
+
+    # No cache hit, retrieve context and ask the model
     docs = retrieve_context(query)
     prompt = f"""
     Using only the information below, provide a direct answer to the question.
     Information: {docs}
     Question: {query}
     """
-    return llm(prompt)
+    result = llm(prompt)
+    # Store the results in the cache
+    cache_query(query, result)
+    # Return the result
+    return result
 
 def make_readable_paragraph(paragraph: str) -> str:
     """Rewrite the paragraph to improve readability."""
