@@ -10,7 +10,7 @@ This project implements an AI-driven assistant using LLMs (Large Language Models
 ## Technologies Used
 - Streamlit
 - LangChain
-- Chroma VectorStore
+- Chroma Database
 - Redis
 - Ollama LLM
 
@@ -33,5 +33,11 @@ pip install -r requirements.txt
 
 ```
 streamlit run app.py
+
+```
+4. Download ollama from google and install the model:
+
+```
+ollama run llama3.1
 
 ```
