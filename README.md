@@ -1,1 +1,37 @@
-This project lets users choose from three response methods: Retrieval Augmented Generation (RAG) for document-based answers, direct responses from an AI language model (LLM), or web search using DuckDuckGo. The system provides answers based on the selected method, offering flexibility in query handling.
+# AI Assistant
+
+This project implements an AI-driven assistant using LLMs (Large Language Models) and a web search integration to answer user queries.
+
+## Features
+- **LLM**: Answer questions using a large language model.
+- **RAG (Retrieval Augmented Generation)**: Retrieve relevant information from a vector store and generate answers.
+- **Web Search**: Perform DuckDuckGo searches to provide up-to-date information.
+
+## Technologies Used
+- Streamlit
+- LangChain
+- Chroma VectorStore
+- Redis
+- Ollama LLM
+
+## Installation
+
+1. Clone this repository:
+```
+git clone https://github.com/anaslimem/AI-Assistant.git
+
+```
+
+2. Install the necessary dependencies:
+
+```
+pip install -r requirements.txt
+
+```
+
+3. Run the Streamlit app:
+
+```
+streamlit run app.py
+
+```
