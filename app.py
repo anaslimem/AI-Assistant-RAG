@@ -3,7 +3,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_community.llms import Ollama
 from langchain_ollama import OllamaEmbeddings
-from langchain.tools import Tool
+from langchain.tools import tools
 import os,ast,redis,json,hashlib
 from hashlib import md5 as hashlibmd5
 

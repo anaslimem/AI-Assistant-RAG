@@ -17,6 +17,7 @@ This project implements an AI-driven assistant using LLMs (Large Language Models
 ## Installation
 
 1. Clone this repository:
+
 ```
 git clone https://github.com/anaslimem/AI-Assistant.git
 ```
@@ -32,6 +33,7 @@ pip install -r requirements.txt
 ```
 streamlit run app.py
 ```
+
 4. Download ollama from google and install the model:
 
 ```
