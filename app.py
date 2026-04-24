@@ -6,6 +6,9 @@ from langchain_ollama import OllamaEmbeddings
 from langchain.tools import tools
 import os,ast,redis,json,hashlib
 from hashlib import md5 as hashlibmd5
+from tavily import TavilyClient
+
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 
 # Redis connection setup with error handling
@@ -131,12 +134,29 @@ browser_tool = Tool(
     description="Searches the web using DuckDuckGo"
 )
 
+def browser_tavily(q: str) -> str:
+    """Search Tavily and return a concise answer."""
+    if not TAVILY_API_KEY:
+        return "Tavily API key not set. Please set the TAVILY_API_KEY environment variable."
+    try:
+        client = TavilyClient(api_key=TAVILY_API_KEY)
+        response = client.search(query=q, max_results=3, search_depth="basic")
+        results = response.get("results", [])
+        if not results:
+            return "No results found."
+        formatted_results = "\n\n".join([r.get("content", "") for r in results])
+        return make_readable_paragraph(formatted_results).strip()
+    except Exception as e:
+        return f"Search failed due to an issue with Tavily: {str(e)}"
+
 # Streamlit UI
 st.set_page_config(page_title="AI Assistant", layout="wide")
 
 st.title("AI Chat")
 
 mode = st.sidebar.radio("Select AI Model", ["LLM", "RAG", "Web Search"])
+
+search_provider = st.sidebar.radio("Search Provider", ["DuckDuckGo", "Tavily"], index=0)
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -154,7 +174,10 @@ if st.button("Ask AI"):
         with st.spinner("Processing..."):
             try:
                 if mode == "Web Search":
-                    response = browser(query)
+                    if search_provider == "Tavily":
+                        response = browser_tavily(query)
+                    else:
+                        response = browser(query)
                 elif mode == "RAG":
                     response = ask_rag(query)
                 else:
