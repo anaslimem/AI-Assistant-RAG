@@ -4,6 +4,7 @@ langchain-community
 redis
 llama-index
 duckduckgo-search
+tavily-python
 altair
 langchain-ollama
 hashlib
